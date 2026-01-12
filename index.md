@@ -2,8 +2,8 @@
 layout: default
 ---
 
-# Welcome to the Lab
-Reverse Engineering | Malware Analysis | Rants.
+# /var/log/anwesh
+Core Dumps, Malware Analysis, and Raw Notes.
 
 ## Logs
 <ul>
