@@ -2,7 +2,7 @@
 layout: default
 ---
 
-# Welcome to Nocaptech
+# Welcome to the Lab
 Reverse Engineering | Malware Analysis | Rants.
 
 ## Logs
