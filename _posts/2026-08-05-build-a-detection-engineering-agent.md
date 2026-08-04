@@ -1,6 +1,8 @@
 ---
 layout: post
-title: "Build a Detection Engineering Agent"
+title: "Part 1: The Field Atlas"
+series: "Building an AI Agent"
+part: 1
 date: 2026-08-05
 categories: [Detection Engineering, Tooling]
 tags: [elasticsearch, detection-engineering, python, ai-agents]
