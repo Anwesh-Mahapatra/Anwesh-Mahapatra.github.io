@@ -1,0 +1,28 @@
+---
+layout: default
+---
+<article class="post">
+  <header class="post-header">
+    <p class="post-meta">
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%d %b %Y" }}</time>
+      {% assign words = content | number_of_words %}
+      <span aria-hidden="true">&middot;</span>
+      <span>{{ words | divided_by: 220 | plus: 1 }} min read</span>
+    </p>
+    <h1 class="post-title">{{ page.title }}</h1>
+    {% if page.summary %}<p class="post-summary">{{ page.summary }}</p>{% endif %}
+    {% if page.tags %}
+    <ul class="tags">
+      {% for tag in page.tags %}<li>{{ tag }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  </header>
+
+  <div class="post-body">
+    {{ content }}
+  </div>
+
+  <footer class="post-footer">
+    <a href="{{ '/' | relative_url }}">&larr; All posts</a>
+  </footer>
+</article>

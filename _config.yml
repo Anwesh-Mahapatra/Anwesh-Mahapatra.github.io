@@ -1,4 +1,26 @@
-remote_theme: pages-themes/hacker@v0.2.0
+title: Anwesh Mahapatra
+tagline: Detection engineering, cloud security and SIEM notes
+description: >-
+  Field notes on detection engineering, Google SecOps (Chronicle), YARA-L,
+  cloud detection and response, and log pipelines.
+author: Anwesh Mahapatra
+url: "https://anwesh-mahapatra.github.io"
+baseurl: ""
+
+github_username: Anwesh-Mahapatra
+
+permalink: /:year/:month/:title/
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
 plugins:
-- jekyll-remote-theme
-future: true
+  - jekyll-feed
+  - jekyll-seo-tag
+
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
