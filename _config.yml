@@ -8,6 +8,7 @@ url: "https://anwesh-mahapatra.github.io"
 baseurl: ""
 
 github_username: Anwesh-Mahapatra
+linkedin_url: "https://www.linkedin.com/in/anwesh-mahapatra/"
 
 permalink: /:year/:month/:title/
 markdown: kramdown
