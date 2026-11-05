@@ -131,6 +131,16 @@ From there, **Actions → Create log alert** turns the query into an alerting po
 ![The GTI ingest alert policy](/assets/img/gti-ingestion/alert-policy.png)
 *The alert policy built on that query.*
 
+An alert you've never seen fire is an assumption, not a control. So I ran the function one more time. It said "data ingestion completed" again, exactly as before, and a moment later Cloud Monitoring opened an incident against the policy.
+
+![An open alert for the GTI ingest policy](/assets/img/gti-ingestion/alert-list.png)
+*The "successful" run, caught.*
+
+![The incident details listing the function's errors](/assets/img/gti-ingestion/alert-incident.png)
+*Inside the incident: every error the function logged, so whoever gets paged can see what went wrong without digging.*
+
+Now the success message can say whatever it likes. If nothing arrives, someone hears about it.
+
 ## What I'd tell the next person
 
 - **Give it its own GCP project.** The script's permission check doesn't accept bucket-scoped or conditional roles, so the project boundary is your least-privilege control.
