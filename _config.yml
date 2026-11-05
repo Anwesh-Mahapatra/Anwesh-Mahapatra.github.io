@@ -6,6 +6,7 @@ description: >-
 author: Anwesh Mahapatra
 url: "https://anwesh-mahapatra.github.io"
 baseurl: ""
+timezone: Asia/Kolkata
 
 github_username: Anwesh-Mahapatra
 linkedin_url: "https://www.linkedin.com/in/anwesh-mahapatra/"

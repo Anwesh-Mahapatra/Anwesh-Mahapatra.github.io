@@ -8,11 +8,66 @@
     if (set) return set;
     return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
+  // Keep the phone's browser bar the same colour as the page.
+  function syncThemeColor() {
+    var bg = getComputedStyle(document.body).backgroundColor;
+    document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute("content", bg); });
+  }
   if (toggle) {
     toggle.addEventListener("click", function () {
       var next = currentTheme() === "dark" ? "light" : "dark";
       root.setAttribute("data-theme", next);
       try { localStorage.setItem("theme", next); } catch (e) {}
+      syncThemeColor();
+    });
+  }
+  if (root.hasAttribute("data-theme")) syncThemeColor();
+
+  // Scroll-driven extras, all updated in one animation frame per scroll:
+  // the header tucks away while reading down and comes back on the way up,
+  // a thin bar shows reading progress on posts, and a back-to-top button
+  // appears once the reader is well into a long page.
+  var header = document.querySelector(".site-header");
+  var progress = document.querySelector(".progress");
+  var toTop = document.querySelector(".to-top");
+  var article = document.querySelector(".post");
+  var lastY = window.scrollY, ticking = false;
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (toTop) toTop.hidden = false;
+
+  function onScroll() {
+    ticking = false;
+    var y = window.scrollY;
+    var dy = y - lastY;
+    if (header) {
+      header.classList.toggle("is-scrolled", y > 4);
+      var busy = document.body.style.overflow === "hidden" || header.contains(document.activeElement);
+      if (y < 80 || busy) header.classList.remove("is-hidden");
+      else if (dy > 6) header.classList.add("is-hidden");
+      else if (dy < -6) header.classList.remove("is-hidden");
+    }
+    if (progress) {
+      var p = 0;
+      if (article) {
+        var r = article.getBoundingClientRect();
+        var span = r.height - window.innerHeight;
+        p = span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 1;
+      }
+      progress.style.transform = "scaleX(" + p + ")";
+    }
+    if (toTop) toTop.classList.toggle("is-visible", y > window.innerHeight * 1.5);
+    lastY = y;
+  }
+  window.addEventListener("scroll", function () {
+    if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+  }, { passive: true });
+  window.addEventListener("resize", onScroll, { passive: true });
+  onScroll();
+  if (toTop) {
+    toTop.addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+      var skip = document.querySelector(".brand");
+      if (skip) skip.focus({ preventScroll: true });
     });
   }
 
@@ -162,8 +217,61 @@
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(img); }
       });
     });
+    // On phones: drag the picture down to dismiss it, like a photo app.
+    var drag = null;
+    bigImg.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "mouse" || !open) return;
+      drag = { y: e.clientY, dy: 0, id: e.pointerId };
+      bigImg.setPointerCapture(e.pointerId);
+    });
+    bigImg.addEventListener("pointermove", function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      drag.dy = Math.max(0, e.clientY - drag.y);
+      bigImg.style.transform = "translateY(" + drag.dy + "px)";
+      backdrop.style.opacity = String(Math.max(0.25, 1 - drag.dy / 400));
+    });
+    function endDrag(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      var dy = drag.dy; drag = null;
+      backdrop.style.opacity = "";
+      if (dy > 90) {
+        dragDismiss(dy);
+      } else {
+        bigImg.style.transform = "";
+        if (dy > 4) bigImg.animate([{ transform: "translateY(" + dy + "px)" }, { transform: "none" }],
+          { duration: 220, easing: EASE });
+        else hide();
+      }
+    }
+    bigImg.addEventListener("pointerup", endDrag);
+    bigImg.addEventListener("pointercancel", endDrag);
+
+    function dragDismiss(dy) {
+      if (!open) return;
+      var img = open; open = null;
+      bar.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, fill: "both" });
+      backdrop.animate([{ opacity: 0.7 }, { opacity: 0 }], { duration: 220, easing: "ease-in", fill: "both" });
+      bigImg.style.transform = "";
+      var a = bigImg.animate(
+        [{ transform: "translateY(" + dy + "px)", opacity: 1 }, { transform: "translateY(" + (dy + 120) + "px)", opacity: 0 }],
+        { duration: 220, easing: "ease-in", fill: "both" });
+      a.onfinish = function () {
+        box.hidden = true;
+        img.style.visibility = "";
+        lockScroll(false);
+        [bigImg, backdrop, bar].forEach(function (el) {
+          el.getAnimations().forEach(function (an) { an.cancel(); });
+        });
+        img.focus({ preventScroll: true });
+      };
+    }
+
     backdrop.addEventListener("click", hide);
-    bigImg.addEventListener("click", hide);
+    bigImg.addEventListener("click", function (e) {
+      // touch taps are handled by the drag logic above
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      hide();
+    });
     closeBtn.addEventListener("click", hide);
     document.addEventListener("keydown", function (e) {
       if (!open) return;
